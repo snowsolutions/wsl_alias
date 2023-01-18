@@ -1,0 +1,50 @@
+alias www='cd /var/www/'
+alias ll='ls -lah --color=auto'
+alias vbash='code ~/.zprofile'
+alias sbash='source ~/.zprofile'
+alias storm='phpstorm64.exe ${1}'
+alias dphp='export PHP_IDE_CONFIG="serverName=cli" && php $1'
+
+#Magento 2
+alias m2p='sudo chmod -R 777 var/ pub/static generated/ app/etc/'
+alias m2c='php bin/magento setup:di:compile'
+alias m2u='php bin/magento setup:upgrade'
+
+#Git alias
+alias gs='git status'
+alias gpu='git pull upstream'
+alias gfu='git fetch upstream'
+alias gpusho='git push origin'
+alias gbranch='git branch -a'
+alias gc='git commit -m"$1"'
+
+alias dmysql='docker exec -it mysql bash'
+alias restartMysql='www && cd mysql && docker-compose down -v && docker-compose up -d'
+alias startDev='sudo service apache2 start && sudo service docker start && sudo service elasticsearch start'
+alias stopDev='sudo service apache2 stop && sudo service docker stop && sudo service elasticsearch stop'
+alias restartDev='stopDev && startDev'
+
+sphp() {
+	installedPhp=("5.6" "7.2" "7.3" "7.4" "8.1")
+	for phpVersion in ${installedPhp[@]}; do
+		sudo a2dismod php$phpVersion
+	done
+	sudo update-alternatives --set php /usr/bin/php$1
+	sudo a2enmod php$1
+	sudo service apache2 restart
+	echo $1 > /var/www/current_php_version
+}
+xdebug() {
+	currentPhpVersion=$(cat /var/www/current_php_version)
+	if [[ "$1" == "on" ]]; then
+		sudo cp /etc/php/$currentPhpVersion/mods-available/xdebug.ini.enable /etc/php/$currentPhpVersion/mods-available/xdebug.ini
+		sudo service apache2 restart
+		echo "turn on executed"
+	else
+		sudo cp /etc/php/$currentPhpVersion/mods-available/xdebug.ini.disable /etc/php/$currentPhpVersion/mods-available/xdebug.ini
+                sudo service apache2 restart
+		echo "turn off executed"
+	fi
+	echo "Turn $1 xdebug for current php version: $currentPhpVersion"
+}
+
